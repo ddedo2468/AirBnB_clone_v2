@@ -10,6 +10,7 @@ from models.place import Place
 from models.review import Review
 import shlex
 
+
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
     __file_path = 'file.json'
@@ -20,17 +21,21 @@ class FileStorage:
         return FileStorage.__objects
 
     def new(self, obj):
-        """Adds new object to storage dictionary"""
-        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
+        """sets __object to given obj
+        Args:
+            obj: given object
+        """
+        if obj:
+            key = "{}.{}".format(type(obj).__name__, obj.id)
+            self.__objects[key] = obj
 
     def save(self):
-        """Saves storage dictionary to file"""
-        with open(FileStorage.__file_path, 'w') as f:
-            temp = {}
-            temp.update(FileStorage.__objects)
-            for key, val in temp.items():
-                temp[key] = val.to_dict()
-            json.dump(temp, f)
+        """ serialize __objects to json file """
+        serialized = {}
+        for dictkey, obj in FileStorage.__objects.items():
+            serialized[dictkey] = obj.to_dict()
+        with open(FileStorage.__file_path, 'w') as file:
+            json.dump(serialized, file)
 
     def reload(self):
         """serialize the file path to JSON file path
@@ -44,7 +49,8 @@ class FileStorage:
             pass
 
     def delete(self, obj=None):
-        """ delete an existing element """
+        """ delete an existing element
+        """
         if obj:
             key = "{}.{}".format(type(obj).__name__, obj.id)
             del self.__objects[key]
