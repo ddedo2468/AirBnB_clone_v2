@@ -34,41 +34,42 @@ class DBStorage:
         if env == "test":
             Base.metadata.drop_all(self.__engine)
 
-        def all(self, cls=None):
-            """
-            returns a dictionary
-            Return:
-            returns a dictionary of __object
-            """
-            if cls is None:
-                all_objects = []
-                for model_class in [User, State, City, Amenity, Place, Review]:
-                    all_objects.extend(self.__session.query(model_class).all())
-            else:
-                all_objects = self.__session.query(cls).all()
+    def all(self, cls=None):
+        """
+        returns a dictionary
+        Return:
+        returns a dictionary of __object
+        """
+        if cls is None:
+            all_objects = []
+            for model_class in [User, State, City, Amenity, Place, Review]:
+                all_objects.extend(self.__session.query(model_class).all())
+        else:
+            all_objects = self.__session.query(cls).all()
 
-            result_dict = {"{}.{}".format(type(obj).__name__, obj.id):\
-                            obj for obj in all_objects}
-            return result_dict
-        
-        def new(self, obj):
-            """ add new elem to the table """
-            self.__session.add(obj)
+        result_dict = {"{}.{}".format(type(obj).__name__, obj.id):\
+                        obj for obj in all_objects}
+        return result_dict
+    
+    def new(self, obj):
+        """ add new elem to the table """
+        self.__session.add(obj)
 
-        def save(self):
-            """ save the changes """
-            self.__session.commit()
-        
-        def delete(self, obj=None):
-            """
-                delete from the current database session
-            """
-            if obj != None:
-                self.__session.delete(obj)
+    def save(self):
+        """ save the changes """
+        self.__session.commit()
+    
+    def delete(self, obj=None):
+        """
+            delete from the current database session
+        """
+        if obj != None:
+            self.__session.delete(obj)
 
-        def reload(self):
-            """ reload function """
-            Base.metadata.create_all(self.__engine)
-            session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-            Session = scoped_session(session_factory)
-            self.__session = Session()
+    def reload(self):
+        """ reload function """
+        Base.metadata.create_all(self.__engine)
+        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(session_factory)
+        self.__session = Session()
+
