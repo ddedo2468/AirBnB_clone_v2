@@ -3,39 +3,35 @@
 import uuid
 import models
 from datetime import datetime
+from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base
 
 
 class BaseModel:
+
+    id = Column(String(60), unique=True, nullable=False, primary_key=True)
+    created_at = Column(DateTime, nullable=False, default=(datetime.utcnow()))
+    updated_at = Column(DateTime, nullable=False, default=(datetime.utcnow()))
+
     def __init__(self, *args, **kwargs):
         """Instantiates a new model"""
-        if not kwargs:
-            from models import storage
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
-            storage.new(self)
-        else:
-            if '__class__' in kwargs:
-                del kwargs['__class__']
-
-            if 'updated_at' in kwargs:
-                kwargs['updated_at'] =\
-                    datetime.strptime(kwargs['updated_at'],
-                                      '%Y-%m-%dT%H:%M:%S.%f')
-            else:
-                kwargs['updated_at'] = datetime.now()
-
-            if 'created_at' in kwargs:
-                kwargs['created_at'] =\
-                    datetime.strptime(kwargs['created_at'],
-                                      '%Y-%m-%dT%H:%M:%S.%f')
-            else:
-                kwargs['created_at'] = datetime.now()
-
-            if 'id' not in kwargs:
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == "created_at" or key == "updated_at":
+                    value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+                if key != "__class__":
+                    setattr(self, key, value)
+            if "id" not in kwargs:
                 self.id = str(uuid.uuid4())
-
-            self.__dict__.update(kwargs)
+            if "created_at" not in kwargs:
+                self.created_at = datetime.now()
+            if "updated_at" not in kwargs:
+                self.updated_at = datetime.now()
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = self.updated_at = datetime.now()
 
     def __str__(self):
         """returns a string
@@ -58,11 +54,16 @@ class BaseModel:
         models.storage.save()
 
     def to_dict(self):
-        """Convert instance into dict format"""
-        dictionary = {}
-        dictionary.update(self.__dict__)
-        dictionary.update({'__class__':
-                          (str(type(self)).split('.')[-1]).split('\'')[0]})
-        dictionary['created_at'] = self.created_at.isoformat()
-        dictionary['updated_at'] = self.updated_at.isoformat()
-        return dictionary
+        """ return a dictionary of baseModel instances"""
+        my_dict = dict(self.__dict__)
+        my_dict["__class__"] = self.__class__.__name__
+        my_dict["created_at"] = self.created_at.isoformat()
+        my_dict["updated_at"] = self.updated_at.isoformat()
+        if '_sa_instance_state' in my_dict.keys():
+            del my_dict['_sa_instance_state']
+        return my_dict
+
+    def delete(self):
+        """ delete object
+        """
+        models.storage.delete(self)
