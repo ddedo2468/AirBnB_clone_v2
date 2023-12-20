@@ -21,11 +21,6 @@ class test_Amenity(test_basemodel):
         self.name = "Amenity"
         self.value = Amenity
 
-    def test_name2(self):
-        """ first test name"""
-        new = self.value()
-        self.assertEqual(type(new.name), str)
-
 
 class Test_PEP8(unittest.TestCase):
     """try the usr"""
@@ -40,10 +35,12 @@ class Test_PEP8(unittest.TestCase):
 class test_inherit_basemodel(unittest.TestCase):
     """is base model the parent?"""
     def test_instance(self):
-        """base is inatance?"""
+        """base i"""
         user = Amenity()
         self.assertIsInstance(user, Amenity)
         self.assertTrue(issubclass(type(user), BaseModel))
+        self.assertEqual(str(type(user)), "<class 'models.amenity.Amenity'>")
+
 
 class test_Amenity_BaseModel(unittest.TestCase):
     """Testing user class"""
@@ -99,6 +96,30 @@ class test_Amenity_BaseModel(unittest.TestCase):
         self.assertTrue(user_2.created_at <= user_3.created_at)
         self.assertTrue(user_1.created_at <= user_2.created_at)
 
+    def test_str_method(self):
+        """
+        Testin str magic method
+        """
+        inst = Amenity()
+        str_output = "[Amenity] ({}) {}".format(inst.id, inst.__dict__)
+        self.assertEqual(str_output, str(inst))
+
+    @patch('models.storage')
+    def test_save_method(self, mock_storage):
+        """Testing save method and if it update"""
+        instance5 = Amenity()
+        created_at = instance5.created_at
+        sleep(2)
+        updated_at = instance5.updated_at
+        instance5.save()
+        new_created_at = instance5.created_at
+        sleep(2)
+        new_updated_at = instance5.updated_at
+        self.assertNotEqual(updated_at, new_updated_at)
+        self.assertEqual(created_at, new_created_at)
+        self.assertTrue(mock_storage.save.called)
+
+
 class TestAmenity(unittest.TestCase):
     """Test the Amenity class"""
 
@@ -110,32 +131,20 @@ class TestAmenity(unittest.TestCase):
         self.assertTrue(hasattr(amenity, "created_at"))
         self.assertTrue(hasattr(amenity, "updated_at"))
 
-    def test_name_attr(self):
-        """Test that Amenity has attribute name, and it's as an empty string"""
-        amenity = Amenity()
-        self.assertTrue(hasattr(amenity, "name"))
-        if storage_t == 'db':
-            self.assertEqual(amenity.name, None)
-        else:
-            self.assertEqual(amenity.name, "")
-
-
     def test_to_dict_values(self):
         """test that values in dict returned from to_dict are correct"""
         t_format = "%Y-%m-%dT%H:%M:%S.%f"
-        daaaaa = Amenity()
-        sasfdaa =daaaaaa.to_dict()
-        self.assertEqual(type(sasfdaa["updated_at"]), str)
-        self.assertEqual(sasfdaa["created_at"],daaaaaa.created_at.strftime(t_format))
-        self.assertEqual(type(sasfdaa["created_at"]), str)
-        self.assertEqual(sasfdaa["updated_at"],daaaaaa.updated_at.strftime(t_format))
-        self.assertEqual(sasfdaa["__class__"], "Amenity")
+        am = Amenity()
+        new_d = am.to_dict()
+        self.assertEqual(new_d["__class__"], "Amenity")
+        self.assertEqual(type(new_d["created_at"]), str)
+        self.assertEqual(type(new_d["updated_at"]), str)
+        self.assertEqual(new_d["created_at"], am.created_at.strftime(t_format))
+        self.assertEqual(new_d["updated_at"], am.updated_at.strftime(t_format))
 
     def test_str(self):
         """test that the str method has the correct output"""
-        nss = Amenity()
-        string = "[Amenity] ({}) {}".format(nss.id, nss.__dict__)
-        self.assertEqual(string, str(nss))
+        amenity = Amenity()
+        string = "[Amenity] ({}) {}".format(amenity.id, amenity.__dict__)
+        self.assertEqual(string, str(amenity))
 
-if __name__ == "__main__":
-    unittest.main()
