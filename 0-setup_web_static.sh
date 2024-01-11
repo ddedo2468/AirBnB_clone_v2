@@ -7,7 +7,7 @@ sudo apt-get install -y nginx
 sudo mkdir -p /data/web_static/releases/test/
 sudo mkdir -p /data/web_static/shared/
 
-sudo sh -c 'echo "Holberton school by maged" >/data/web_static/releases/test/index.html'
+sudo sh -c 'echo "Hello From Armane" >/data/web_static/releases/test/index.html'
 
 sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
 
