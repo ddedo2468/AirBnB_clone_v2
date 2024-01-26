@@ -26,10 +26,10 @@ def cFun(text):
 
 @app.route("/python")
 @app.route("/python/<text>")
-def python(text = "is cool"):
-    """ python page """
+def python(text="is cool"):
+    """ python pagr """
     text = text.replace("_", " ")
-    return f"Python {text}"
+    return "Python {}".format(text)
 
 
 if __name__ == "__main__":
