@@ -24,8 +24,8 @@ def cFun(text):
     return f"C {text}"
 
 
-@app.route("/python")
-@app.route("/python/<text>")
+@app.route("/python", strict_slashes=False)
+@app.route("/python/<text>", strict_slashes=False)
 def python(text='is cool'):
     """ python page """
     text = text.replace("_", " ")
