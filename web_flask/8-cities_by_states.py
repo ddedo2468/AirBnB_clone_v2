@@ -12,13 +12,9 @@ app = Flask(__name__)
 @app.route('/cities_by_states', strict_slashes=False)
 def cities_by_states():
     """HTML page"""
-    clists = sorted(storage.all(
-        State).values(), key=lambda x: x.name)
 
-    for citiy in clists:
-        citiy.cities.sort(key=lambda x: x.name)
-    return render_template("8-cities_by_states.html",
-                           sorted_states_list=clists)
+    states = storage.all(State)
+    return render_template("8-cities_by_states.html", states=states)
 
 
 @app.teardown_appcontext
